@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haksaeng HS — Story Writer</title>
+<style>
+/* ============================================================
+   HAKSAENG PRESTIGE ACRYLIC — tokens (from phone_proto.html)
+   ============================================================ */
+:root{
+  --bg:#f5f7fb; --panel:#ffffff; --panel2:#edf1f8; --ink:#17233d;
+  --muted:#6b7793; --line:#dde4f0; --line2:#c9d3e6;
+  --gold:#c9a13b; --gold-soft:#f7edd2; --gold-deep:#a9852c;
+  --me-grad:linear-gradient(135deg,#24365e,#3d5a94);
+  --feed:#e0572b; --feed-soft:#fdeee4;
+  --hina:#e05587; --kenji:#3d5a94; --kenji-soft:#5d6b8c;
+  --shadow:0 1px 2px rgba(23,35,61,.05),0 6px 22px rgba(23,35,61,.07);
+  --font-head:'Segoe UI Rounded','Trebuchet MS','Segoe UI',sans-serif;
+  --font-body:'Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#10141f; --panel:#1a2233; --panel2:#232c42; --ink:#eef2fb;
+  --muted:#8a97b5; --line:#2e3a55; --line2:#3c4a6b;
+  --gold:#e3bc55; --gold-soft:#2e2a1a; --gold-deep:#e3bc55;
+  --feed:#ff8a5c; --feed-soft:#2e1c14;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 26px rgba(0,0,0,.35);
+}}
+*{box-sizing:border-box;margin:0}
+body{background:linear-gradient(160deg,var(--bg),var(--panel2));color:var(--ink);
+  font:15px/1.55 var(--font-body);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:34px 14px 80px}
+h1,h2,h3{font-family:var(--font-head);font-weight:600}
+
+.pg-kick{font:800 11px var(--font-body);letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep)}
+.pg-title{font-size:30px;margin:3px 0 4px}
+.pg-sub{color:var(--muted);max-width:640px;text-align:center;margin-bottom:26px}
+.crest{width:34px;height:34px;border-radius:9px;background:var(--me-grad);
+  display:grid;place-items:center;color:var(--gold);font:700 17px var(--font-head);margin-bottom:10px;
+  box-shadow:var(--shadow)}
+
+/* workspace: phone + doc side by side */
+.workspace{display:flex;gap:34px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+
+/* ═════════ PHONE FRAME ═════════ */
+.phone{width:330px;height:640px;border-radius:44px;padding:10px;flex:none;
+  background:linear-gradient(145deg,#1a2c50,#0f1a33);
+  box-shadow:0 24px 60px rgba(15,26,51,.45),inset 0 0 0 1px rgba(255,255,255,.09);position:relative}
+.notch{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:88px;height:20px;border-radius:11px;background:#0b1324;z-index:50}
+.screen{width:100%;height:100%;border-radius:37px;overflow:hidden;background:var(--bg);
+  display:flex;flex-direction:column;position:relative}
+.status{display:flex;justify-content:space-between;align-items:center;padding:12px 22px 3px;
+  font:700 11.5px var(--font-body);color:var(--ink);flex:none}
+.sig{display:flex;gap:5px;align-items:center}
+.sig i{display:block;border-radius:2px;background:var(--ink)}
+.sig .bat{width:20px;height:10px;border:1.5px solid var(--ink);border-radius:3px;position:relative;background:linear-gradient(90deg,var(--ink) 72%,transparent 72%)}
+
+.appview{flex:1;display:flex;flex-direction:column;min-height:0}
+.apphdr{display:flex;align-items:center;gap:9px;padding:12px 16px 9px;flex:none}
+.apphdr h3{font-size:20px;flex:1}
+.storytitle{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);
+  font:600 17px var(--font-head);outline:none;border-bottom:1.5px dashed transparent;padding:2px 0}
+.storytitle:focus{border-bottom-color:var(--gold)}
+.storytitle::placeholder{color:var(--muted);opacity:.6}
+
+/* the story feed */
+.feed{flex:1;min-height:0;overflow-y:auto;padding:10px 13px 6px;display:flex;flex-direction:column;gap:7px}
+.feed:empty::after{content:"pick a line type below ↓";align-self:center;margin:auto;
+  font:italic 500 12px var(--font-body);color:var(--muted)}
+.ln{position:relative;padding:7px 10px;font-size:12.5px;line-height:1.45;border-radius:13px;
+  animation:pop .18s ease}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.ln .tools{position:absolute;top:-9px;right:6px;display:none;gap:3px}
+.ln:hover .tools{display:flex}
+.ln .tools button{width:20px;height:20px;border-radius:7px;border:1px solid var(--line2);
+  background:var(--panel);color:var(--muted);font:800 10px var(--font-body);cursor:pointer;
+  display:grid;place-items:center;box-shadow:var(--shadow)}
+.ln .tools button:hover{color:var(--ink);border-color:var(--gold)}
+.ln .tools button.dlx:hover{color:#fff;background:#d43d4f;border-color:#d43d4f}
+
+.ln-mc{background:transparent;color:var(--ink);padding:2px 6px}
+.ln-mc::before{content:"MC ";font:800 9px var(--font-body);letter-spacing:.1em;color:var(--gold-deep);
+  background:var(--gold-soft);border-radius:6px;padding:1px 6px;margin-right:6px;vertical-align:1px}
+.ln-act{background:transparent;font-style:italic;color:var(--muted);padding:2px 6px}
+.ln-act .who{font:800 9px var(--font-body);letter-spacing:.1em;font-style:normal;border-radius:6px;
+  padding:1px 6px;margin-right:6px;vertical-align:1px}
+.ln-act.w-hina .who{color:var(--hina);background:linear-gradient(135deg,#f7d3e1,#e8aac4)}
+.ln-act.w-kenji .who{color:#fff;background:var(--kenji)}
+.ln-say{max-width:86%;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:5px}
+.ln-say .who{display:block;font:800 9px var(--font-body);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.ln-say.w-hina{border-left:3px solid var(--hina)} .ln-say.w-hina .who{color:var(--hina)}
+.ln-say.w-kenji{border-left:3px solid var(--kenji)} .ln-say.w-kenji .who{color:var(--kenji-soft)}
+.ln-think{max-width:88%;font:italic 500 12px/1.5 var(--font-body);background:transparent;padding:2px 6px}
+.ln-think.w-hina{color:var(--hina)}
+.ln-think.w-kenji{color:var(--kenji-soft)}
+.ln-think::before{content:"… "}
+.ln-note{border:1.5px dashed var(--gold);border-radius:11px;background:var(--gold-soft)}
+.ln-note .ntag{display:inline-block;font:800 8.5px var(--font-body);letter-spacing:.1em;color:var(--gold-deep);
+  margin-bottom:2px}
+
+/* composer */
+.chipsbar{flex:none;padding:8px 11px 4px;border-top:1px solid var(--line);background:var(--panel)}
+.chipsbar small{font:800 9.5px var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:6px 0 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;font:700 11.5px var(--font-body);border:1.5px solid var(--line2);background:var(--panel);
+  color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer;transition:all .12s}
+.chip:hover{border-color:var(--gold)}
+.chip.on{background:var(--me-grad);color:#fff;border-color:transparent;box-shadow:0 3px 9px rgba(23,35,61,.3)}
+.compose{flex:none;display:flex;gap:7px;padding:5px 11px 11px;background:var(--panel)}
+.compose input{flex:1;min-width:0;border:1.5px solid var(--line2);border-radius:13px;background:var(--bg);
+  color:var(--ink);font:500 12.5px var(--font-body);padding:8px 12px;outline:none}
+.compose input:focus{border-color:var(--gold)}
+.compose button{flex:none;width:38px;border:0;border-radius:13px;background:var(--me-grad);color:#fff;
+  font:800 17px var(--font-head);cursor:pointer;box-shadow:0 3px 9px rgba(23,35,61,.3)}
+.compose button:hover{filter:brightness(1.13)}
+.homebar{flex:none;height:26px;display:grid;place-items:center}
+.homebar i{width:104px;height:5px;border-radius:3px;background:var(--ink);opacity:.7}
+
+/* ═════════ DOC PANEL ═════════ */
+.docpanel{width:420px;max-width:94vw;background:var(--panel);border:1px solid var(--line);
+  border-radius:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+.dp-head{display:flex;align-items:center;gap:10px;padding:14px 18px 10px}
+.dp-head h3{font-size:17px;flex:1}
+.dp-btn{font:700 11.5px var(--font-body);border:1.5px solid var(--line2);background:var(--panel);
+  color:var(--ink);border-radius:99px;padding:6px 14px;cursor:pointer}
+.dp-btn:hover{border-color:var(--gold)}
+.dp-btn.primary{background:var(--me-grad);color:#fff;border-color:transparent;box-shadow:0 3px 9px rgba(23,35,61,.3)}
+.dp-body{flex:1;margin:0 14px 14px;border-radius:14px;background:var(--bg);border:1px solid var(--line);
+  overflow-y:auto;max-height:430px;padding:14px 16px}
+.docpre{font:500 12.5px/1.7 var(--font-body);white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.docpre .d-mc{color:var(--ink)}
+.docpre .d-act{font-style:italic;color:var(--muted)}
+.docpre .d-hina{color:var(--hina);font-family:var(--font-head)}
+.docpre .d-kenji{color:var(--kenji-soft);font-family:var(--font-head)}
+.docpre .d-note{color:var(--gold-deep);font-style:italic}
+.dp-empty{color:var(--muted);font:italic 500 12.5px var(--font-body);text-align:center;padding:30px 10px}
+.doc-count{padding:0 18px 12px;font:700 10.5px var(--font-body);color:var(--muted);letter-spacing:.06em}
+
+.caption{max-width:640px;text-align:center;color:var(--muted);font-size:13px;margin-top:26px}
+.caption em{color:var(--hina)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--me-grad);color:#fff;font:700 12.5px var(--font-body);padding:9px 20px;border-radius:99px;
+  box-shadow:0 8px 24px rgba(23,35,61,.4);transition:transform .3s ease;z-index:99}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="crest">学</div>
+<div class="pg-kick">Haksaeng High · Story Writer</div>
+<h1 class="pg-title">The Story Notebook</h1>
+<p class="pg-sub">Pick a line type, write the line, tap ＋. When you're done, hit <b>Make Doc</b> — it formats everything into a clean story script~</p>
+
+<div class="workspace">
+
+  <!-- ═════════ PHONE ═════════ -->
+  <div class="phone"><div class="notch"></div><div class="screen">
+    <div class="status"><span id="clock">4:20</span><span class="sig"><i class="bat"></i><i style="width:14px;height:10px;clip-path:polygon(0 100%,50% 0,100% 100%);background:var(--ink)"></i></span></div>
+
+    <div class="appview">
+      <div class="apphdr">
+        <div class="bck" style="font:700 21px var(--font-head);color:var(--gold-deep);cursor:pointer" onclick="clearStory()" title="new story">‹</div>
+        <input class="storytitle" id="storyTitle" placeholder="untitled story…" spellcheck="false">
+        <div class="ln-count" id="lineCount" style="font:800 9.5px var(--font-body);letter-spacing:.08em;color:var(--muted)">0 lines</div>
+      </div>
+
+      <div class="feed" id="feed"></div>
+
+      <div class="chipsbar">
+        <small>Line type</small>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="compose">
+        <input id="entry" placeholder="write the line…" spellcheck="true"
+               onkeydown="if(event.key==='Enter')addLine()">
+        <button onclick="addLine()" title="add line">＋</button>
+      </div>
+      <div class="homebar"><i></i></div>
+    </div>
+
+  </div></div>
+
+  <!-- ═════════ DOC PANEL ═════════ -->
+  <div class="docpanel">
+    <div class="dp-head">
+      <h3>📄 Story Doc</h3>
+      <button class="dp-btn primary" onclick="makeDoc()">Make Doc</button>
+      <button class="dp-btn" onclick="copyDoc()">Copy</button>
+      <button class="dp-btn" onclick="downloadDoc()">Save .txt</button>
+    </div>
+    <div class="dp-body" id="docBody"><div class="dp-empty">nothing yet — write some lines then press <b>Make Doc</b>~</div></div>
+    <div class="doc-count" id="docCount">&nbsp;</div>
+  </div>
+
+</div>
+
+<p class="caption">Drafts autosave in this browser. Tap ‹ for a fresh page · the pink italics are her thoughts — <em>the good stuff</em>~, obviously (⁄ ⁄•⁄ω⁄•⁄ ⁄)</p>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── line types ─────────────────────────────── */
+const TYPES=[
+  {id:'mc',    label:'🎬 MC',        who:null},
+  {id:'hina',  label:'🎀 Hina',      who:'hina'},
+  {id:'hsay',  label:'🎀 Hina says', who:'hina', say:true},
+  {id:'hthink',label:'💭 Hina thinks',who:'hina', think:true},
+  {id:'kenji', label:'🔵 Kenji',     who:'kenji'},
+  {id:'ksay',  label:'🔵 Kenji says',who:'kenji', say:true},
+  {id:'note',  label:'📌 Note',      who:null}
+];
+const NAMES={hina:'Hina',kenji:'Kenji',mc:'MC'};
+let sel='mc';
+
+/* ── state + persistence ────────────────────── */
+let story=null;
+try{ story=JSON.parse(localStorage.getItem('hs_story')); }catch(e){}
+if(!story) story={title:'',lines:[
+  {t:'mc',   x:'Monday. The hallway smells like floor wax and secrets.'},
+  {t:'hthink',x:'okay. act normal. he is RIGHT THERE.'},
+  {t:'hsay', x:'senpai~ you forgot your lunch again. lucky for you I\'m generous~'},
+  {t:'hina', x:'slides the bento across the desk, watching his face'},
+  {t:'ksay', x:'yo, is that... handmade?? no fair, man.'},
+  {t:'note', x:'beat: he takes one bite before realizing she watched the whole time.'}
+]};
+function save(){ localStorage.setItem('hs_story',JSON.stringify(story)); }
+
+/* ── chips ──────────────────────────────────── */
+const chipsEl=document.getElementById('chips');
+TYPES.forEach(t=>{
+  const b=document.createElement('button');
+  b.className='chip'+(t.id===sel?' on':'');
+  b.textContent=t.label; b.dataset.id=t.id;
+  b.onclick=()=>{ sel=t.id;
+    chipsEl.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.id===sel));
+    document.getElementById('entry').focus();
+  };
+  chipsEl.appendChild(b);
+});
+
+/* ── feed render ────────────────────────────── */
+const feed=document.getElementById('feed');
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function render(){
+  document.getElementById('storyTitle').value=story.title||'';
+  feed.innerHTML='';
+  story.lines.forEach((l,i)=>{
+    const t=TYPES.find(x=>x.id===l.t);
+    const d=document.createElement('div');
+    let cls='ln',inner=esc(l.x);
+    if(t.say){ cls+=' ln-say w-'+t.who; inner=`<span class="who">${NAMES[t.who]}</span>${inner}`; }
+    else if(t.think){ cls+=' ln-think w-'+t.who; }
+    else if(t.who){ cls+=' ln-act w-'+t.who; inner=`<span class="who">${NAMES[t.who].toUpperCase()}</span>${inner}`; }
+    else if(l.t==='mc'){ cls+=' ln-mc'; }
+    else { cls+=' ln-note'; inner=`<span class="ntag">NOTE</span><br>${inner}`; }
+    d.className=cls;
+    d.innerHTML=inner+
+      `<span class="tools">
+        <button title="move up" onclick="mv(${i},-1)">↑</button>
+        <button title="move down" onclick="mv(${i},1)">↓</button>
+        <button class="dlx" title="delete" onclick="del(${i})">✕</button>
+      </span>`;
+    feed.appendChild(d);
+  });
+  document.getElementById('lineCount').textContent=story.lines.length+' line'+(story.lines.length===1?'':'s');
+  feed.scrollTop=feed.scrollHeight;
+}
+function addLine(){
+  const inp=document.getElementById('entry');
+  const v=inp.value.trim(); if(!v)return;
+  story.lines.push({t:sel,x:v}); inp.value=''; save(); render();
+}
+function del(i){ story.lines.splice(i,1); save(); render(); }
+function mv(i,d){
+  const j=i+d; if(j<0||j>=story.lines.length)return;
+  [story.lines[i],story.lines[j]]=[story.lines[j],story.lines[i]];
+  save(); render();
+}
+document.getElementById('storyTitle').addEventListener('input',e=>{ story.title=e.target.value; save(); });
+function clearStory(){
+  if(story.lines.length && !confirm('Start a fresh story? Current lines will be cleared~'))return;
+  story={title:'',lines:[]}; save(); render();
+  document.getElementById('storyTitle').focus();
+}
+
+/* ── doc building ───────────────────────────── */
+let docText='';
+function q(s){ s=s.trim(); return /^[“"]/.test(s)?s:`"${s}"`; }
+function buildDoc(){
+  const t=(story.title||'Untitled Story').trim();
+  const rows=[];
+  story.lines.forEach(l=>{
+    const ty=TYPES.find(x=>x.id===l.t);
+    if(ty.say)      rows.push({c:'w-'+t.who,n:NAMES[t.who]+': ',x:q(l.x)});
+    else if(ty.think)rows.push({c:'t-'+t.who,n:`(${NAMES[t.who]} thinks) `,x:l.x});
+    else if(ty.who) rows.push({c:'a-'+t.who,n:`[${NAMES[t.who]}] `,x:l.x});
+    else if(l.t==='mc') rows.push({c:'mc',n:'',x:l.x});
+    else            rows.push({c:'note',n:'NOTE: ',x:l.x});
+  });
+  return {title:t,rows};
+}
+function makeDoc(){
+  if(!story.lines.length){ toast('write something first, silly~'); return; }
+  const {title,rows}=buildDoc();
+  const body=document.getElementById('docBody');
+  body.innerHTML='<div style="font:700 15px var(--font-head);margin-bottom:10px">'+esc(title)+'</div>';
+  rows.forEach(r=>{
+    const p=document.createElement('div'); p.className='docpre '+r.c;
+    p.innerHTML=esc(r.n)+esc(r.x);
+    p.style.marginBottom='7px';
+    body.appendChild(p);
+  });
+  const words=story.lines.reduce((a,l)=>a+l.x.split(/\s+/).length,0);
+  document.getElementById('docCount').textContent=
+    story.lines.length+' lines · '+words+' words · '+story.title.length+' chars title';
+  docText=title+'\n'+'─'.repeat(Math.min(40,title.length+4))+'\n\n'+
+    rows.map(r=>r.n+r.x).join('\n')+'\n';
+  toast('doc ready~ 📄');
+}
+function copyDoc(){
+  if(!docText){ makeDoc(); }
+  navigator.clipboard.writeText(docText).then(()=>toast('copied to clipboard~ ✓'))
+    .catch(()=>toast('copy failed >< try Save .txt'));
+}
+function downloadDoc(){
+  if(!docText) makeDoc();
+  const slug=(story.title||'story').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'story';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([docText],{type:'text/plain'}));
+  a.download=slug+'.txt'; a.click(); URL.revokeObjectURL(a.href);
+  toast('saved '+slug+'.txt 💾');
+}
+
+/* ── sugar ──────────────────────────────────── */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),1800);
+}
+(function tick(){
+  const d=new Date();
+  const h=d.getHours()%12||12, m=String(d.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent=h+':'+m;
+})();
+render();
+</script>
+</body>
+</html>
