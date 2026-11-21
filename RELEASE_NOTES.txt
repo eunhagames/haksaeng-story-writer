@@ -1,0 +1,8 @@
+Story Writer v1.0 — Haksaeng HS story notebook
+
+Install: download the APK below, tap it, allow "install unknown apps" when prompted.
+
+- Line types: MC / Hina / Hina says / Hina thinks / Kenji / Kenji says / Note
+- Autoloads with a demo story; everything autosaves on your phone
+- Make Doc / Copy / Save .txt export
+- No permissions, no internet, 21 KB
